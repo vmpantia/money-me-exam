@@ -1,6 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using MoneyMe.Api.DataAccess;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<MoneyMeDbContext>(option =>
+                option.UseSqlServer(builder.Configuration.GetConnectionString("con")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
