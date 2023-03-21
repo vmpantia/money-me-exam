@@ -1,14 +1,24 @@
-﻿namespace MoneyMe.Web.Models
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace MoneyMe.Web.Models
 {
     public class QuotationViewModel
     {
-        public decimal AmountRequired { get; set; }
+        [DisplayName("Amount to Loan")]
+        public decimal Amount { get; set; }
+        [DisplayName("Term (in months)")]
         public decimal Term { get; set; }
         public string Title { get; set; }
+        [DisplayName("First Name")]
         public string FirstName { get; set; }
+        [DisplayName("Last Name")]
         public string LastName { get; set; }
+        [DisplayName("Date of Birth")]
         public DateTime DateOfBirth { get; set; }
-        public string Mobile { get; set; }
-        public string Email { get; set; }
+        [DisplayName("Mobile Number")]
+        public string MobileNumber { get; set; }
+        [DisplayName("Email Address")]
+        public string EmailAddress { get; set; }
     }
 }

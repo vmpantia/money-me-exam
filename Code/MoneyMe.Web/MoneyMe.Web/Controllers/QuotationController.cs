@@ -1,82 +1,92 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.VisualBasic;
+using MoneyMe.Web.Models;
+using System.Net.Http;
+using System.Net;
+using System.Text;
+using System;
+using MoneyMe.Web.Models.Requests;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MoneyMe.Web.Controllers
 {
     public class QuotationController : Controller
     {
-        // GET: QuotationController
         public async Task<IActionResult> Index()
         {
-            return View();
+            var model = new QuotationViewModel();
+            return View(model);
         }
 
-        // GET: QuotationController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: QuotationController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: QuotationController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> QuoteCal(Guid quotationID)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
+                var httpClient = new HttpClient();
+                var httpResponse = await httpClient.GetAsync("https://localhost:7176/Quotation/GetQuotationByID?quotationID=" + quotationID.ToString());
+
+                if (httpResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    return View("Error", new ErrorViewModel
+                    {
+                        RequestId = await httpResponse.Content.ReadAsStringAsync()
+                    });
+                }
+
                 return View();
             }
+            catch (Exception ex)
+            {
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = ex.Message
+                });
+            }
         }
 
-        // GET: QuotationController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> SaveQuotation(QuotationViewModel model)
         {
-            return View();
-        }
+            if (!ModelState.IsValid)
+                return View("Index", model);
 
-        // POST: QuotationController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
             try
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+                var data = new StringContent(JsonConvert.SerializeObject(new SaveQuotationRequest
+                {
+                    AmountRequired = model.Amount,
+                    Term = model.Term,
+                    Title = model.Title,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName, 
+                    DateOfBirth = model.DateOfBirth,
+                    Mobile = model.MobileNumber,
+                    Email = model.EmailAddress
+                }), Encoding.UTF8, "application/json");
 
-        // GET: QuotationController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
+                var httpClient = new HttpClient();
+                var httpResponse = await httpClient.PostAsync("https://localhost:7176/Quotation/SaveQuotation", data);
 
-        // POST: QuotationController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
+                if (httpResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    return View("Error", new ErrorViewModel
+                    {
+                        RequestId = await httpResponse.Content.ReadAsStringAsync()
+                    });
+                }
+
+                var result = await httpResponse.Content.ReadAsStringAsync();
+                var url = "https://localhost:7176/Quotation" + result;
+                return Redirect(url);
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = ex.Message
+                });
             }
         }
     }
