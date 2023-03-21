@@ -1,4 +1,4 @@
-namespace MoneyMe.Web.Models
+namespace MoneyMe.Web.Models.Views
 {
     public class ErrorViewModel
     {

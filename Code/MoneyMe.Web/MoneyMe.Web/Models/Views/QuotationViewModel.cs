@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace MoneyMe.Web.Models
+namespace MoneyMe.Web.Models.Views
 {
     public class QuotationViewModel
     {
@@ -17,8 +17,8 @@ namespace MoneyMe.Web.Models
         [DisplayName("Date of Birth")]
         public DateTime DateOfBirth { get; set; }
         [DisplayName("Mobile Number")]
-        public string MobileNumber { get; set; }
+        public string Mobile { get; set; }
         [DisplayName("Email Address")]
-        public string EmailAddress { get; set; }
+        public string Email { get; set; }
     }
 }
