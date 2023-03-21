@@ -18,49 +18,69 @@ namespace MoneyMe.Api.Services
 
         public async Task<string> SaveQuotationAsync(SaveQuotationRequest request)
         {
-            if (request == null)
-                throw new ServiceException("Quotation request cannot be null or empty.");
+            try
+            {
+                Guid quotationId;
+
+                if (request == null)
+                    throw new ServiceException("Quotation request cannot be null or empty.");
 
 
-            //Check if there's a existing quoatation of the requester
-            var quotations = await _db.Quotations.Where(data => data.FirstName == data.FirstName &&
-                                                                data.LastName == data.LastName &&
-                                                                data.DateOfBirth == data.DateOfBirth)
-                                                 .ToListAsync();
-            var isAdd = quotations.Any();
+                //Check if there's a existing quoatation of the requester
+                var quotations = await _db.Quotations.Where(data => data.FirstName == request.FirstName &&
+                                                                    data.LastName == request.LastName &&
+                                                                    data.DateOfBirth == request.DateOfBirth)
+                                                     .ToListAsync();
 
-            if (isAdd)
-                await InsertQuotation(request.inputQuotation);
+                if (quotations.Any())
+                    quotationId = await InsertQuotation(request);
 
-            else
-                await UpdateQuotation(quotations.First(), request.inputQuotation);
+                else
+                    quotationId = await UpdateQuotation(request, quotations.First());
 
-            var result = await _db.SaveChangesAsync();
-            if (result == 0)
-                throw new ServiceException("Error in saving data in database.");
+                var result = await _db.SaveChangesAsync();
+                if (result == 0)
+                    throw new ServiceException("Error in saving data in database.");
 
-            return string.Format(Constants.QUOTE_CALCULATOR_SUFFIX_URL, isAdd ?
-                                        request.inputQuotation.QuotationID :
-                                        quotations.First().QuotationID);
+                return string.Format(Constants.QUOTE_CALCULATOR_SUFFIX_URL, quotationId);
+            }
+            catch(Exception ex) 
+            {
+                throw;
+            }
         }
 
-        private async Task InsertQuotation(Quotation data)
+        private async Task<Guid> InsertQuotation(SaveQuotationRequest request)
         {
-            data.QuotationID = Guid.NewGuid();
-            await _db.Quotations.AddAsync(data);
+            var quotation = new Quotation
+            {
+                QuotationID = Guid.NewGuid(),
+                AmountRequired = request.AmountRequired,
+                Term = request.Term,
+                Title = request.Title,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                DateOfBirth = request.DateOfBirth,
+                Mobile = request.Mobile,
+                Email = request.Email,
+            };
+            await _db.Quotations.AddAsync(quotation);
+
+            return quotation.QuotationID;
         }
 
-        private async Task UpdateQuotation(Quotation oldData, Quotation newData)
+        private async Task<Guid> UpdateQuotation(SaveQuotationRequest request, Quotation currentData)
         {
-            //oldData.QuotationID = newData.QuotationID;
-            oldData.AmountRequired = newData.AmountRequired;
-            oldData.Term = newData.Term;
-            oldData.Title = newData.Title;
-            //oldData.FirstName = newData.FirstName;
-            //oldData.LastName = newData.LastName;
-            //oldData.DateOfBirth = newData.DateOfBirth;
-            oldData.Mobile = newData.Mobile;
-            oldData.Email = newData.Email;
+            currentData.AmountRequired = request.AmountRequired;
+            currentData.Term = request.Term;
+            currentData.Title = request.Title;
+            //currentData.FirstName = request.FirstName;
+            //currentData.LastName = request.LastName;
+            //currentData.DateOfBirth = request.DateOfBirth;
+            currentData.Mobile = request.Mobile;
+            currentData.Email = request.Email;
+
+            return currentData.QuotationID;
         }
 
 

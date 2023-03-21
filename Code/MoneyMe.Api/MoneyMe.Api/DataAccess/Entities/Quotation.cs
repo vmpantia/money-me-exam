@@ -15,7 +15,9 @@ namespace MoneyMe.Api.DataAccess.Entities
         [Required, MaxLength(30)]
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
+        [Required, MaxLength(15)]
         public string Mobile { get; set; }
+        [Required, MaxLength(50)]
         public string Email { get; set; }
     }
 }

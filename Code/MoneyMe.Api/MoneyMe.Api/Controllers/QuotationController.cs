@@ -14,8 +14,8 @@ namespace MoneyMe.Api.Controllers
             _quotation = quotation;
         }
 
-        [HttpGet("GetSGs")]
-        public async Task<IActionResult> GetSGsAsync(SaveQuotationRequest request)
+        [HttpPost("SaveQuotation")]
+        public async Task<IActionResult> SaveQuotationAsync(SaveQuotationRequest request)
         {
             try
             {
