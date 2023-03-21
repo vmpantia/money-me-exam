@@ -30,5 +30,22 @@ namespace MoneyMe.Api.Controllers
                 return Conflict(ex.Message);
             }
         }
+
+        [HttpGet("GetQuotationByID")]
+        public async Task<IActionResult> GetQuotationByIDAsync(Guid quotationID)
+        {
+            try
+            {
+                var result = await _quotation.GetQuotationByIDAsync(quotationID);
+                if (result == null)
+                    return NotFound();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
     }
 }

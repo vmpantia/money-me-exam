@@ -16,6 +16,15 @@ namespace MoneyMe.Api.Services
             _db = db;
         }
 
+        public async Task<Quotation> GetQuotationByIDAsync(Guid quotationID)
+        {
+            var data = await _db.Quotations.FindAsync(quotationID);
+            if(data == null)
+                throw new ServiceException("Quotation cannot be found in the database.");
+
+            return data;
+        }
+
         public async Task<string> SaveQuotationAsync(SaveQuotationRequest request)
         {
             try
@@ -32,7 +41,7 @@ namespace MoneyMe.Api.Services
                                                                     data.DateOfBirth == request.DateOfBirth)
                                                      .ToListAsync();
 
-                if (quotations.Any())
+                if (!quotations.Any())
                     quotationId = await InsertQuotation(request);
 
                 else
